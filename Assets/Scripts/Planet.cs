@@ -1,7 +1,9 @@
 using Assets.Frame.Tools;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 public class Planet : MonoBehaviour
 {
@@ -15,14 +17,13 @@ public class Planet : MonoBehaviour
     public float SelfRotationSpeed;
     [Header("自转轴")]
     public Vector3 SelfRotationAxis;
-    [Header("公转点")]
+    [Header("公转中心")]
     public Transform RotationPoint;
-    [Header("公转速度")]
-    public float RotationSpeed;
+    [Header("中心力参数")]
+    public float CenterPM;
     [Header("公转轴")]
     public Vector3 RotationAxis;
-    //[Header("初相位")]
-    //public float Offset;
+
 
     private CharacterEventCenter characterEventCenter;
     private GameDataCenter gameDataCenter;
@@ -42,7 +43,7 @@ public class Planet : MonoBehaviour
         OrgRotationPoint = RotationPoint.position;
         velocityController.GetPosFunc = (t) =>
         {
-            return Tools.GetPosition(OrgPosition, OrgRotationPoint, RotationAxis, RotationSpeed, t);
+            return Tools.GetPosition(OrgPosition, OrgRotationPoint, RotationAxis, CalcualateSpeed(), t);
         };
     }
     private void Start()
@@ -59,6 +60,15 @@ public class Planet : MonoBehaviour
         forceSystem.SetGravityForce(gameObject.name + "Gravity", PG, transform.position);
         SetCharacterDirection();
         transform.Rotate(SelfRotationAxis, SelfRotationSpeed * Time.deltaTime);
+    }
+    private float CalcualateSpeed()
+    {
+        if (RotationPoint == null)
+        {
+            return 0;
+        }
+        float r = (transform.position - RotationPoint.position).magnitude;
+        return Mathf.Pow(CenterPM / r, 0.5f);
     }
 
     private void SetCharacterDirection()

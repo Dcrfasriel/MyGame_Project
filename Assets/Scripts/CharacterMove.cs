@@ -3,6 +3,7 @@ using Assets.Scripts.Interface;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -35,7 +36,6 @@ public class CharacterMove : MonoBehaviour,IRecieveForce
     [Header("视角调整速度")]
     public float AxisRotationSpeed;
 
-    private CameraFol cameraFol;
     private BoxCheckPoint GroundCheckBox;
     private new Rigidbody rigidbody;
     private MoveState RunOrWalk;
@@ -47,9 +47,10 @@ public class CharacterMove : MonoBehaviour,IRecieveForce
     private Vector3 LastSpeed=new Vector3(0,0,0);
     private Vector3 LastPosition;
     private CharacterEventCenter characterEventCenter;
+    private bool WillUnLockRigibody;
+    private bool IsRigibodyLocked;
     private void Awake()
     {
-        cameraFol=Camera.main.GetComponent<CameraFol>();
         MaxAngle = Mathf.Clamp(MaxAngle, 0, 90);
         MinAngle = Mathf.Clamp(MinAngle, -90,0);
         GroundCheckBox = transform.Find("GroundCheckPoint").gameObject.GetComponent<BoxCheckPoint>();
@@ -70,6 +71,7 @@ public class CharacterMove : MonoBehaviour,IRecieveForce
         LastPosition=transform.position;
         rigidbody.AddForce(G, ForceMode.Acceleration);
         SetCharacterDirection(characterEventCenter.CurrentCenter);
+        SetIfUnLockRigibody(false);
     }
 
     private void Move()
@@ -86,7 +88,7 @@ public class CharacterMove : MonoBehaviour,IRecieveForce
             Vector3 MoveDir = Vector3.Normalize(Vector3.ProjectOnPlane(MoveFaceDir, Normal));
             float Upslope= Vector3.Angle(Normal, transform.up);
             float slope = 90 - Vector3.Angle(MoveDir, transform.up);
-            if ((x * x + y * y) <= 0.01 && Upslope <= MaxAngle) LockRigidbody(true);
+            if ((x * x + y * y) <= 0.01 && Upslope <= MaxAngle && !WillUnLockRigibody) LockRigidbody(true);
             else LockRigidbody(false);
             if (slope <= MinAngle)
             {
@@ -119,6 +121,7 @@ public class CharacterMove : MonoBehaviour,IRecieveForce
                 return;
             }
             transform.position += LastGroundMoveSpeedVector * Time.deltaTime;
+            //rigidbody.MovePosition(rigidbody.position + LastGroundMoveSpeedVector * Time.deltaTime);
         }
         else
         {
@@ -165,6 +168,7 @@ public class CharacterMove : MonoBehaviour,IRecieveForce
     }
     private void LockRigidbody(bool lockOrUnlock)
     {
+        IsRigibodyLocked = lockOrUnlock;
         if (lockOrUnlock)
         {
             if (!rigidbody)
@@ -174,18 +178,19 @@ public class CharacterMove : MonoBehaviour,IRecieveForce
             }
 
             // 检查并锁定刚体的某些约束
-            if (!rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezePositionX))
-            {
-                rigidbody.constraints |= RigidbodyConstraints.FreezePositionX;
-            }
-            if (!rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezePositionY))
-            {
-                rigidbody.constraints |= RigidbodyConstraints.FreezePositionY;
-            }
-            if (!rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezePositionZ))
-            {
-                rigidbody.constraints |= RigidbodyConstraints.FreezePositionZ;
-            }
+            //if (!rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezePositionX))
+            //{
+            //    rigidbody.constraints |= RigidbodyConstraints.FreezePositionX;
+            //}
+            //if (!rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezePositionY))
+            //{
+            //    rigidbody.constraints |= RigidbodyConstraints.FreezePositionY;
+            //}
+            //if (!rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezePositionZ))
+            //{
+            //    rigidbody.constraints |= RigidbodyConstraints.FreezePositionZ;
+            //}
+            rigidbody.isKinematic = true;
         }
         else
         {
@@ -196,18 +201,20 @@ public class CharacterMove : MonoBehaviour,IRecieveForce
             }
 
             // 解锁刚体的某些约束
-            if (rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezePositionX))
-            {
-                rigidbody.constraints &= ~RigidbodyConstraints.FreezePositionX;
-            }
-            if (rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezePositionY))
-            {
-                rigidbody.constraints &= ~RigidbodyConstraints.FreezePositionY;
-            }
-            if (rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezePositionZ))
-            {
-                rigidbody.constraints &= ~RigidbodyConstraints.FreezePositionZ;
-            }
+            //if (rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezePositionX))
+            //{
+            //    rigidbody.constraints &= ~RigidbodyConstraints.FreezePositionX;
+            //}
+            //if (rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezePositionY))
+            //{
+            //    rigidbody.constraints &= ~RigidbodyConstraints.FreezePositionY;
+            //}
+            //if (rigidbody.constraints.HasFlag(RigidbodyConstraints.FreezePositionZ))
+            //{
+            //    rigidbody.constraints &= ~RigidbodyConstraints.FreezePositionZ;
+            //}
+
+            rigidbody.isKinematic = false;
         }
     }
 
@@ -301,5 +308,11 @@ public class CharacterMove : MonoBehaviour,IRecieveForce
         return rigidbody.velocity;
     }
 
+    public void SetIfUnLockRigibody(bool Bool)
+    {
+        WillUnLockRigibody = Bool;
+    }
+
+    
     
 }

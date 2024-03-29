@@ -52,21 +52,18 @@ public class ForceSystem : MonoBehaviour
         {
             Rigidbody rb = Rigibodies[i];
             IRecieveForce recieveForce = FuncClasses[i];
-            Vector3 Gravity = CalcualateGravityForce(ControllingObjects[i].transform.position + rb.centerOfMass);
+            Vector3 Gravity = CalcualateGravityAcceleration(ControllingObjects[i].transform.position + rb.centerOfMass);
             recieveForce.SetForce(Gravity);
         }
     }
 
-    public Vector3 CalcualateGravityForce(Vector3 Point,string Name="")
+    public Vector3 CalcualateGravityAcceleration(Vector3 Point,string Name="")
     {
         Vector3 Force= Vector3.zero;
         foreach (var key in GravityForceTable.Keys)
         {
             if (string.Compare(key, Name) == 0) continue;
             var value = GravityForceTable[key];
-            float a = (Point - value.Position).sqrMagnitude;
-            Vector3 b = Vector3.Normalize(value.Position - Point);
-            float c = value.Force;
             Force += Vector3.Normalize(value.Position- Point) *value.Force / (Point - value.Position).sqrMagnitude;
         }
 

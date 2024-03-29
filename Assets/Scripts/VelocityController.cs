@@ -11,6 +11,7 @@ public class VelocityController : MonoBehaviour
     [Header("是否为静止中心")]
     public bool IsOrgCenter;
 
+    private Rigidbody rb;
     private VelocitySystem velocitySystem;
     private Vector3 OrgPos;
     private Vector3 SystemOffset;
@@ -21,6 +22,7 @@ public class VelocityController : MonoBehaviour
 
     private void Awake()
     {
+        rb=GetComponent<Rigidbody>();
         Vobserver=GetComponent<VelocityObserver>();
         OrgPos = transform.position;
         if (IsOrgCenter)
@@ -39,7 +41,8 @@ public class VelocityController : MonoBehaviour
 
         if (IsMoving)
         {
-            transform.position = GetPosFunc(velocitySystem.TotalTime)+SystemOffset;
+            rb.MovePosition(GetPosFunc(velocitySystem.TotalTime) + SystemOffset);
+            //transform.position = GetPosFunc(velocitySystem.TotalTime)+SystemOffset;
         }
     }
 
@@ -57,5 +60,6 @@ public class VelocityController : MonoBehaviour
     {
         return Vobserver.GetVelocity();
     }
+
 
 }

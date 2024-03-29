@@ -20,10 +20,9 @@ public class VelocitySystem : MonoBehaviour
     [Header("¾²Ö¹ÖÐÐÄ")]
     public VelocityController OrgCenter;
 
-    public List<GameObject> ControllingObjects;
-
     //public VelocityController Test;
-
+    private List<GameObject> ControllingObjects;
+    private CharacterEventCenter eventCenter;
     public VelocityController Center;
     private GameDataCenter gameDataCenter;
     private List<VelocityController> velocitySystems;
@@ -33,11 +32,14 @@ public class VelocitySystem : MonoBehaviour
     private void Awake()
     {
         instance = this;
+        ControllingObjects = new List<GameObject>();
+        ControllingObjects.AddRange(GameObject.FindGameObjectsWithTag("Planet"));
         velocitySystems = ControllingObjects.Select((a) => a.GetComponent<VelocityController>()).ToList();
         Center = OrgCenter;
     }
     private void Start()
     {
+        eventCenter=CharacterEventCenter.GetInstance();
         gameDataCenter=GameDataCenter.GetInstance();
     }
     public Vector3 GetSystemOffsetFunc()
@@ -46,9 +48,12 @@ public class VelocitySystem : MonoBehaviour
     }
     private void Update()
     {
+        if (eventCenter.IsFloating)
+        {
+            SetCenter(OrgCenter);
+        }
         TotalTime += Time.deltaTime;
-        //if(Center!=Test)SetCenter(Test);
-        if(Center!=null)SystemOffset =Center.transform.position- Center.GetPosFunc(TotalTime);
+        SystemOffset =Center.transform.position- Center.GetPosFunc(TotalTime);
         foreach (var v in velocitySystems)
         {
             v.SetSystemOffset(SystemOffset);
@@ -57,7 +62,7 @@ public class VelocitySystem : MonoBehaviour
 
     public void SetCenter(VelocityController Newcenter)
     {
-        if (Newcenter == null) Newcenter = OrgCenter;
+            if (Newcenter == null) Newcenter = OrgCenter;
         if (Center == Newcenter) return;
         Center.SetCenter(false);
         Center = Newcenter;

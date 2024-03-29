@@ -19,8 +19,6 @@ public class GameDataCenter : MonoBehaviour
     public GameObject Character;
     [Header("Ïà»úÖáµã")]
     public Transform AxisPoint;
-
-
     private void Awake()
     {
         instance = this;
