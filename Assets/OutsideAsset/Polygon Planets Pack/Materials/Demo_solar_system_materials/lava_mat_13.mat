@@ -16,8 +16,9 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
+  m_CustomRenderQueue: 2000
+  stringTagMap:
+    RenderType: Opaque
   disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
@@ -76,8 +77,11 @@ Material:
     - Vector1_D9594136: 3.26
     - Vector1_F2B73B8: 0.76
     - _AlphaClip: 0
+    - _AlphaToMask: 0
     - _Blend: 0
+    - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
+    - _CastShadows: 1
     - _Cull: 2
     - _Cutoff: 0.5
     - _DstBlend: 0
@@ -96,7 +100,9 @@ Material:
     - _SrcBlend: 1
     - _Surface: 0
     - _WorkflowMode: 1
+    - _ZTest: 4
     - _ZWrite: 1
+    - _ZWriteControl: 1
     m_Colors:
     - Color_229B0EDE: {r: 0.9811321, g: 0, b: 0.5794861, a: 0}
     - Color_322000A1: {r: 1, g: 0, b: 0.7464113, a: 0}
